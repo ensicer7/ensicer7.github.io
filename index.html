@@ -1,0 +1,1032 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#008069">
+<title>Cem Chat</title>
+<style>
+:root{--bg:#d1d7db;--panel:#fff;--text:#111b21;--sub:#667781;--line:#e9edef;--green:#00a884;--bar:#008069;--mine:#d9fdd3;--other:#fff;--chatbg:#efeae2;--hover:#f5f6f6;--red:#ea0038;--input:#f0f2f5;--tick:#53bdeb;--doodle:.07}
+[data-theme=dark]{--bg:#0a1014;--panel:#111b21;--text:#e9edef;--sub:#8696a0;--line:#222d34;--bar:#202c33;--mine:#005c4b;--other:#202c33;--chatbg:#0b141a;--hover:#202c33;--input:#2a3942;--doodle:.04}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overscroll-behavior:none}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);font-size:15px}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+input,select{font:inherit;color:var(--text);background:var(--input);border:1px solid transparent;border-radius:10px;padding:10px 12px;outline:none;width:100%}
+input:focus,select:focus{border-color:var(--green)}
+[hidden]{display:none!important}
+.btn{background:var(--green);color:#fff;border-radius:22px;padding:10px 18px;font-weight:600}
+.btn.sec{background:var(--input);color:var(--text)}
+.btn.red{background:var(--red)}
+.btn:disabled{opacity:.5}
+/* welcome */
+#welcome{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(180deg,var(--bar) 0,var(--bar) 222px,var(--bg) 222px)}
+.card{background:var(--panel);border-radius:14px;padding:30px 26px;width:100%;max-width:420px;box-shadow:0 2px 16px #0003;display:flex;flex-direction:column;gap:14px}
+.logo{font-size:30px;font-weight:700;color:var(--green);text-align:center}
+.card p.s{color:var(--sub);text-align:center;font-size:14px;line-height:1.4}
+.link{color:var(--green);font-size:14px;text-align:center;font-weight:600}
+/* app */
+#app{display:flex;height:100dvh;max-width:1600px;margin:0 auto;background:var(--panel);box-shadow:0 0 30px #0003}
+#side{width:min(420px,34%);min-width:330px;flex:none;border-right:1px solid var(--line);display:flex;flex-direction:column;position:relative;background:var(--panel)}
+#main{flex:1;display:flex;flex-direction:column;min-width:0;background:var(--chatbg);position:relative}
+.bg{background-color:var(--chatbg);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cg fill='none' stroke='%23808080' stroke-width='1.4' stroke-linecap='round' opacity='.9'%3E%3Ccircle cx='24' cy='26' r='7'/%3E%3Cpath d='M70 18l8 8m0-8l-8 8'/%3E%3Cpath d='M118 22q6-9 12 0t12 0'/%3E%3Cpath d='M20 84h14m-7-7v14'/%3E%3Crect x='72' y='72' width='14' height='14' rx='4'/%3E%3Cpath d='M120 78l7-9 7 9z'/%3E%3Ccircle cx='28' cy='134' r='3'/%3E%3Cpath d='M74 128q8-10 16 0'/%3E%3Cpath d='M122 126l12 12m0-12l-12 12'/%3E%3C/g%3E%3C/svg%3E");background-blend-mode:normal}
+.top{display:flex;align-items:center;gap:6px;padding:10px 12px 10px 16px;background:var(--bar);color:#fff;min-height:58px}
+.top .tt{flex:1;min-width:0}
+.top .tt b{font-size:21px;font-weight:700;display:block}
+.top .tt small{display:block;font-size:11.5px;opacity:.85;margin-top:-1px}
+.ib{width:40px;height:40px;border-radius:50%;font-size:20px;position:relative;flex:none;display:inline-flex;align-items:center;justify-content:center}
+.ib:active{background:#0003}
+.ib i{position:absolute;top:2px;right:0;background:#25d366;color:#fff;font-size:11px;font-style:normal;border-radius:9px;min-width:17px;height:17px;line-height:17px;text-align:center;padding:0 4px;font-weight:700}
+.av{width:49px;height:49px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:20px;flex:none}
+#sw{padding:8px 12px;background:var(--panel)}
+#sw input{border-radius:22px;background:var(--input);padding:9px 16px}
+#chatlist{flex:1;overflow:auto;background:var(--panel)}
+.item{display:flex;gap:14px;padding:0 0 0 14px;cursor:pointer;align-items:center}
+.item:active,.item:hover,.item.on{background:var(--hover)}
+.item .mid{flex:1;min-width:0;padding:11px 16px 11px 0;border-bottom:1px solid var(--line)}
+.r1,.r2{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.r1 b{font-weight:500;font-size:16.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.t{font-size:12px;color:var(--sub);flex:none}.t.u{color:#25d366}
+.pv{color:var(--sub);font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px}
+.bd{background:#25d366;color:#fff;border-radius:12px;min-width:20px;height:20px;line-height:20px;text-align:center;font-size:12px;font-style:normal;padding:0 6px;font-weight:600;flex:none}
+.empty{padding:36px 24px;text-align:center;color:var(--sub);line-height:1.5}
+#fab{position:absolute;right:18px;bottom:20px;width:56px;height:56px;border-radius:16px;background:#25d366;color:#fff;font-size:26px;box-shadow:0 3px 10px #0004;z-index:5}
+.emptymain{margin:auto;text-align:center;color:var(--sub);padding:20px;max-width:380px}
+.emptymain h2{font-weight:300;font-size:30px;color:var(--text);margin-bottom:10px}
+.emptymain .big{font-size:60px}
+.chead{display:flex;align-items:center;gap:4px;padding:8px 8px 8px 4px;background:var(--bar);color:#fff;min-height:58px;z-index:2}
+.chead .av{width:40px;height:40px;font-size:17px;margin:0 8px 0 2px}
+.chead .ti{flex:1;min-width:0;cursor:pointer}
+.chead .ti b,.chead .ti small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chead .ti b{font-weight:500;font-size:16.5px}.chead small{opacity:.85;font-size:12.5px}
+.back{display:none}
+#msgs{flex:1;overflow:auto;padding:12px 5% 8px;display:flex;flex-direction:column;gap:2px}
+.day{text-align:center;margin:10px 0 6px}.day span{background:var(--panel);color:var(--sub);font-size:12.5px;padding:5px 12px;border-radius:8px;box-shadow:0 1px 1px #0002}
+.row{display:flex;margin-top:1px}.row.me{justify-content:flex-end}.row.tail{margin-top:8px}
+.bub{max-width:min(80%,520px);background:var(--other);padding:6px 8px 6px 9px;border-radius:8px;box-shadow:0 1px .5px #0002;word-wrap:break-word;overflow-wrap:anywhere;position:relative;line-height:1.35}
+.row.me .bub{background:var(--mine)}
+.row.tail:not(.me) .bub{border-top-left-radius:0}.row.tail.me .bub{border-top-right-radius:0}
+.row.tail:not(.me) .bub::before{content:"";position:absolute;top:0;left:-8px;border-style:solid;border-width:0 8px 8px 0;border-color:transparent var(--other) transparent transparent}
+.row.tail.me .bub::before{content:"";position:absolute;top:0;right:-8px;border-style:solid;border-width:0 0 8px 8px;border-color:transparent transparent transparent var(--mine)}
+.who{font-size:13px;font-weight:600;margin-bottom:1px}
+.meta{float:right;margin:7px 0 -3px 10px;font-size:11px;color:var(--sub);display:inline-flex;gap:3px;align-items:center;user-select:none}
+.tick{font-size:13px;letter-spacing:-3px;color:var(--sub)}.tick.ok{color:var(--tick)}
+.del{opacity:.4;font-size:11px}.del:hover{opacity:1}
+.pic{max-width:100%;max-height:320px;border-radius:6px;display:block;cursor:pointer;margin-bottom:2px}
+.vc{display:flex;align-items:center;gap:8px}
+audio{height:40px;max-width:100%;width:230px}
+#comp{display:flex;align-items:flex-end;gap:8px;padding:6px 8px calc(6px + env(safe-area-inset-bottom));background:transparent;z-index:2}
+#comp .pill{flex:1;display:flex;align-items:center;background:var(--panel);border-radius:24px;padding:0 4px;min-height:46px;box-shadow:0 1px 1px #0002}
+#comp .pill input{background:transparent;border:0;padding:10px 6px;border-radius:0}
+#comp .pill .ib{width:38px;height:38px;color:var(--sub);font-size:22px}
+#micBtn{width:48px;height:48px;border-radius:50%;background:var(--green);color:#fff;font-size:21px;box-shadow:0 1px 2px #0003;flex:none}
+#emoji{background:var(--panel);padding:8px;display:flex;flex-wrap:wrap;gap:2px;max-height:160px;overflow:auto;z-index:2}
+#emoji button{font-size:24px;padding:4px 6px}
+#recbar{display:flex;align-items:center;gap:10px;padding:8px 12px calc(8px + env(safe-area-inset-bottom));background:var(--panel);z-index:2}
+#recbar .dot{width:11px;height:11px;border-radius:50%;background:var(--red);animation:bl 1s infinite}
+@keyframes bl{50%{opacity:.2}}
+#recbar span{flex:1}
+/* modal */
+#modal{position:fixed;inset:0;background:#0008;display:flex;align-items:center;justify-content:center;padding:14px;z-index:50}
+.mbox{background:var(--panel);border-radius:14px;width:100%;max-width:440px;max-height:92dvh;overflow:auto;padding:18px;display:flex;flex-direction:column;gap:12px;box-shadow:0 8px 40px #0006}
+.mh{display:flex;align-items:center;justify-content:space-between}.mh h3{font-size:19px;font-weight:600}
+.mh .ib{color:var(--sub)}
+.tabs{display:flex;gap:6px}.tabs button{flex:1;padding:9px;border-radius:20px;background:var(--input);font-weight:500}.tabs .on{background:var(--green);color:#fff}
+.li{display:flex;align-items:center;gap:12px;padding:6px 0}.li .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.li .av{width:44px;height:44px;font-size:18px}
+.li small{color:var(--sub)}
+.bigid{font-size:27px;letter-spacing:4px;font-weight:700;color:var(--green);text-align:center;word-break:break-all}
+.lab{font-size:13px;color:var(--sub);line-height:1.4}
+.sec2{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:8px}
+#qrbox{display:flex;justify-content:center;padding:12px;background:#fff;border-radius:12px;align-self:center}
+#scanv{width:100%;border-radius:12px;background:#000;max-height:260px}
+.chk{display:flex;gap:12px;align-items:center;padding:6px 0}.chk input{width:auto}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#202c33;color:#fff;padding:10px 16px;border-radius:10px;z-index:200;font-size:14px;max-width:90%;text-align:center;box-shadow:0 2px 10px #0006}
+#lb{position:fixed;inset:0;background:#000e;z-index:150;display:flex;align-items:center;justify-content:center}
+#lb img{max-width:96vw;max-height:92vh}
+/* arama */
+#call{position:fixed;inset:0;background:#0b141a;z-index:80;display:flex;flex-direction:column;color:#fff}
+#ctitle{padding:16px;text-align:center;font-weight:500;font-size:17px}
+#tiles{flex:1;display:grid;gap:8px;padding:8px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));grid-auto-rows:1fr;min-height:0}
+.tile{position:relative;background:#2a3942;border-radius:14px;overflow:hidden;display:flex;align-items:center;justify-content:center;min-height:120px}
+.tile video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.tile.novideo video{opacity:0}
+.tile .av{width:84px;height:84px;font-size:34px}
+.tile .lb{position:absolute;left:8px;bottom:8px;background:#0008;padding:3px 9px;border-radius:8px;font-size:13px}
+#cbar{display:flex;justify-content:center;gap:18px;padding:16px 16px calc(20px + env(safe-area-inset-bottom))}
+#cbar button{width:58px;height:58px;border-radius:50%;background:#2a3942;font-size:24px;color:#fff}
+#cbar button.off{background:#fff;color:#000}#cbar .end{background:var(--red)}
+#ring{position:fixed;top:12px;left:50%;transform:translateX(-50%);background:var(--panel);box-shadow:0 8px 30px #0006;border-radius:16px;padding:14px 16px;z-index:90;display:flex;align-items:center;gap:12px;width:min(94vw,430px)}
+#ring .nm{flex:1;min-width:0}
+.lsearch{margin:4px 0 6px}
+.llist{max-height:280px;overflow:auto;display:flex;flex-direction:column}
+.lrow{display:flex;align-items:center;gap:10px;padding:9px 6px;text-align:start;border-radius:8px;width:100%}
+.lrow:hover,.lrow.on{background:var(--hover)}
+.lrow span:first-child{font-size:22px}
+.lrow small{color:var(--sub);margin-inline-start:auto}
+#wLangBox .llist{max-height:240px}
+@media(max-width:800px){
+ #side{width:100%;min-width:0;border:0}#main{display:none;width:100%}
+ body.chat-open #side{display:none}body.chat-open #main{display:flex}
+ .back{display:inline-flex}#msgs{padding:10px 8px 6px}
+ #app{box-shadow:none}
+}
+</style>
+</head>
+<body>
+
+<div id="welcome" hidden>
+  <div class="card">
+    <div class="logo">💬 Cem Chat</div>
+    <p class="s">Numara yok, şifre yok, Gmail yok.<br>Sadece bir isim yaz ve başla.</p>
+    <input id="wName" maxlength="24" placeholder="İsmin (ör: Cem)" autocomplete="off">
+    <button class="btn" id="wGo">Başla</button>
+    <button class="link" id="wImp">Yedek dosyam var</button>
+    <button class="btn sec" id="wLang"></button><div id="wLangBox" hidden></div>
+    <input type="file" id="wFile" accept="application/json,.json" hidden>
+  </div>
+</div>
+
+<div id="app" hidden>
+  <aside id="side">
+    <div class="top">
+      <div class="tt"><b>Cem Chat</b><small id="net">○ bağlanıyor…</small></div>
+      <button class="ib" id="bInbox" title="Mesaj kutusu">📥<i id="inboxBd" hidden></i></button>
+      <button class="ib" id="bGroup" title="Grup kur">👥</button>
+      <button class="ib" id="bSet" title="Ayarlar">⚙️</button>
+    </div>
+    <div id="sw"><input id="q" placeholder="🔍  Ara"></div>
+    <div id="chatlist"></div>
+    <button id="fab" title="Arkadaş ekle">➕</button>
+  </aside>
+  <main id="main" class="bg"></main>
+</div>
+
+<div id="modal" hidden></div>
+<div id="ring" hidden></div>
+<div id="lb" hidden></div>
+<div id="call" hidden>
+  <div id="ctitle"></div>
+  <div id="tiles"></div>
+  <div id="cbar">
+    <button id="cMic" title="Mikrofon">🎤</button>
+    <button id="cCam" title="Kamera">📷</button>
+    <button id="cAdd" title="Aramaya biri ekle">➕</button>
+    <button id="cEnd" class="end" title="Kapat">📞</button>
+  </div>
+</div>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const LET='abcdefghijklmnopqrstuvwxyz';
+function rid(n){const a=new Uint8Array(n);crypto.getRandomValues(a);let s='';for(const b of a)s+=LET[b%26];return s}
+const pid=id=>'cemchat-'+id, fid=p=>String(p).replace(/^cemchat-/,'');
+const dmKey=(a,b)=>'d:'+[a,b].sort().join(':');
+const isId=s=>/^[a-z]{8}$/.test(s||'');
+let DB=null,peer=null,fresh=false,retry=0,cur=null,lastDay='',lastFrom='',pendingAdd=null;
+let prefs=Object.assign({theme:'light',sound:true},JSON.parse(localStorage.getItem('cc_prefs')||'{}'));
+const savePrefs=()=>{localStorage.setItem('cc_prefs',JSON.stringify(prefs));document.documentElement.dataset.theme=prefs.theme;const m=document.querySelector('meta[name=theme-color]');if(m)m.content=prefs.theme==='dark'?'#202c33':'#008069'};
+savePrefs();
+const conns={},pendingConn={},chunkBuf={},peerNames={};
+
+/* ---------- DİL / i18n ---------- */
+const LANGS=[['de','DE'],['tr','TR'],['en','GB'],['fr','FR'],['es','ES'],['it','IT'],['pt','PT'],['ru','RU'],['ar','SA'],['zh','CN'],
+['ja','JP'],['ko','KR'],['hi','IN'],['bn','BD'],['ur','PK'],['fa','IR'],['id','ID'],['ms','MY'],['th','TH'],['vi','VN'],
+['fil','PH'],['pl','PL'],['uk','UA'],['nl','NL'],['sv','SE'],['da','DK'],['nb','NO'],['fi','FI'],['el','GR'],['cs','CZ'],
+['sk','SK'],['hu','HU'],['ro','RO'],['bg','BG'],['sr','RS'],['hr','HR'],['bs','BA'],['sl','SI'],['mk','MK'],['sq','AL'],
+['lt','LT'],['lv','LV'],['et','EE'],['is','IS'],['ga','IE'],['mt','MT'],['he','IL'],['ka','GE'],['hy','AM'],['az','AZ'],
+['kk','KZ'],['uz','UZ'],['ky','KG'],['tg','TJ'],['tk','TM'],['mn','MN'],['ne','NP'],['si','LK'],['ta','IN'],['te','IN'],
+['ml','IN'],['kn','IN'],['mr','IN'],['gu','IN'],['pa','IN'],['my','MM'],['km','KH'],['lo','LA'],['am','ET'],['sw','KE'],
+['so','SO'],['ha','NG'],['yo','NG'],['ig','NG'],['zu','ZA'],['af','ZA'],['xh','ZA'],['mg','MG'],['rw','RW'],['ps','AF'],
+['ku','IQ'],['be','BY'],['ca','ES'],['eu','ES'],['gl','ES'],['lb','LU'],['fo','FO'],['cy','GB'],['ti','ER'],['sn','ZW']];
+const RTL=new Set(['ar','he','fa','ur','ps']);
+const I18N={};
+function D(tr,de,en){I18N[tr]={de,en}}
+/* giriş */
+D('Numara yok, şifre yok, Gmail yok.','Keine Nummer, kein Passwort, kein Gmail.','No phone number, no password, no Gmail.');
+D('Sadece bir isim yaz ve başla.','Schreib einfach einen Namen und leg los.','Just type a name and get started.');
+D('İsmin (ör: Cem)','Dein Name (z. B. Cem)','Your name (e.g. Cem)');
+D('Başla',"Los geht's",'Start');
+D('Yedek dosyam var','Ich habe eine Sicherungsdatei','I have a backup file');
+D('Bir isim yaz','Gib einen Namen ein','Enter a name');
+D('Bu geçerli bir yedek dosyası değil','Das ist keine gültige Sicherungsdatei',"This isn't a valid backup file");
+/* üst bar */
+D('○ bağlanıyor…','○ verbinde …','○ connecting…');
+D('● çevrimiçi','● online','● online');
+D('○ bağlantı yok','○ keine Verbindung','○ no connection');
+D('Bu hesap başka yerde açık olabilir','Dieses Konto ist vielleicht woanders geöffnet','This account may be open elsewhere');
+D('Mesaj kutusu','Postfach','Inbox');
+D('Grup kur','Gruppe erstellen','Create group');
+D('Ayarlar','Einstellungen','Settings');
+D('Arkadaş ekle','Freund hinzufügen','Add friend');
+D('🔍  Ara','🔍  Suchen','🔍  Search');
+/* liste */
+D('Henüz kimse yok.','Noch niemand hier.','Nobody here yet.');
+D('Sağ alttaki ➕ ile bir arkadaşını','Füge unten rechts mit ➕ einen Freund','Use ➕ at the bottom right to add a friend');
+D("ID'siyle veya QR ile ekle.",'per ID oder QR-Code hinzu.','by ID or QR code.');
+D('Henüz mesaj yok','Noch keine Nachricht','No messages yet');
+D('🎤 Sesli mesaj','🎤 Sprachnachricht','🎤 Voice message');
+D('📷 Fotoğraf','📷 Foto','📷 Photo');
+D('Dün','Gestern','Yesterday');
+/* ana ekran / sohbet */
+D('Soldan bir sohbet seç','Wähle links einen Chat','Pick a chat on the left');
+D('ya da ➕ ile arkadaş ekle.','oder füge mit ➕ einen Freund hinzu.','or add a friend with ➕.');
+D('🔒 Mesajlar sunucuda değil, doğrudan telefonlar arasında gider.','🔒 Nachrichten laufen nicht über einen Server, sondern direkt zwischen den Handys.',"🔒 Messages don't go through a server, they travel directly between phones.");
+D('Mesaj','Nachricht','Message');
+D('çevrimiçi','online','online');
+D('Görüntülü ara','Videoanruf','Video call');
+D('Sesli ara','Sprachanruf','Voice call');
+D('Sil','Löschen','Delete');
+D('Sen','Du','You');
+D("Bu kişinin ID'si:",'Die ID dieser Person:',"This person's ID:");
+D('Bu mesaj herkesten silinsin mi?','Diese Nachricht für alle löschen?','Delete this message for everyone?');
+D('Fotoğraf gönderilemedi','Foto konnte nicht gesendet werden',"Couldn't send photo");
+D('Bu tarayıcı ses kaydını desteklemiyor','Dieser Browser unterstützt keine Audioaufnahme',"This browser doesn't support audio recording");
+D('Mikrofon izni gerekli','Mikrofonzugriff erforderlich','Microphone permission needed');
+D('Ses gönderilemedi','Audio konnte nicht gesendet werden',"Couldn't send audio");
+/* arkadaş ekle */
+D('ID ile','Per ID','By ID');
+D('QR ile','Per QR-Code','By QR');
+D("Arkadaşının ID'sini yaz (8 harf)",'Gib die ID deines Freundes ein (8 Buchstaben)',"Enter your friend's ID (8 letters)");
+D('ör: abcdefgh','z. B. abcdefgh','e.g. abcdefgh');
+D('Ara','Suchen','Search');
+D('ID tam 8 harften oluşmalı.','Die ID muss genau 8 Buchstaben haben.','The ID must be exactly 8 letters.');
+D('Bu sensin 🙂','Das bist du 🙂',"That's you 🙂");
+D('zaten arkadaşın ✓','ist schon dein Freund ✓','is already your friend ✓');
+D('İstek zaten gönderildi, kabul etmesini bekle.','Anfrage wurde schon gesendet, warte auf die Annahme.','Request already sent, wait for them to accept.');
+D('Aranıyor…','Suche …','Searching…');
+D('Kullanıcı','Nutzer','User');
+D('İstek gönder','Anfrage senden','Send request');
+D('Şu an ulaşılamadı. ID yanlış olabilir ya da kişi çevrimdışı. İstek yine de gönderilebilir, kişi uygulamayı açınca ona ulaşır.','Gerade nicht erreichbar. Die ID ist vielleicht falsch oder die Person ist offline. Du kannst die Anfrage trotzdem senden, sie kommt an, sobald die Person die App öffnet.',"Can't reach them right now. The ID may be wrong or the person is offline. You can still send the request, it arrives when they open the app.");
+D('Yine de istek gönder','Trotzdem Anfrage senden','Send request anyway');
+D('Arkadaş oldunuz 🎉','Ihr seid jetzt Freunde 🎉',"You're now friends 🎉");
+D('İstek gönderildi ✓','Anfrage gesendet ✓','Request sent ✓');
+D('Benim QR kodum — arkadaşın okutsun','Mein QR-Code – dein Freund scannt ihn','My QR code – let your friend scan it');
+D("veya arkadaşının QR'ını tara:",'oder scanne den QR-Code deines Freundes:',"or scan your friend's QR code:");
+D('📷 QR tara','📷 QR-Code scannen','📷 Scan QR');
+D('QR yüklenemedi (internet gerekli)','QR-Code konnte nicht geladen werden (Internet nötig)',"Couldn't load QR (internet needed)");
+D('Bu tarayıcı QR okuyamıyor. Telefonun kamerasıyla okut veya ID ile ekle.','Dieser Browser kann keine QR-Codes lesen. Scanne mit der Handykamera oder füge per ID hinzu.',"This browser can't read QR codes. Use your phone camera or add by ID.");
+D('Kamera izni gerekli','Kamerazugriff erforderlich','Camera permission needed');
+D('sana arkadaşlık isteği gönderdi 📥','hat dir eine Freundschaftsanfrage geschickt 📥','sent you a friend request 📥');
+D('isteğini kabul etti 🎉','hat deine Anfrage angenommen 🎉','accepted your request 🎉');
+/* mesaj kutusu */
+D('Kabul','Annehmen','Accept');
+D('Red','Ablehnen','Decline');
+D('Bekleyen arkadaşlık isteği yok.','Keine offenen Freundschaftsanfragen.','No pending friend requests.');
+D('Kabul edildi ✓','Angenommen ✓','Accepted ✓');
+D('Reddedildi','Abgelehnt','Declined');
+/* grup */
+D('Grup adı','Gruppenname','Group name');
+D('Kimler olsun?','Wer soll dabei sein?','Who should join?');
+D('Grubu kur','Gruppe erstellen','Create group');
+D('Önce arkadaş eklemelisin','Füge zuerst Freunde hinzu','Add friends first');
+D('Grup adı yaz','Gib einen Gruppennamen ein','Enter a group name');
+D('En az 1 arkadaş seç','Wähle mindestens 1 Freund','Pick at least 1 friend');
+D('üye','Mitglieder','members');
+D('(sen)','(du)','(you)');
+D('Gruba biri ekle','Jemanden zur Gruppe hinzufügen','Add someone to the group');
+D('Ekle','Hinzufügen','Add');
+D('Gruptan çık','Gruppe verlassen','Leave group');
+D('Gruptan çıkmak istiyor musun?','Möchtest du die Gruppe verlassen?','Do you want to leave the group?');
+D('Eklendi ✓','Hinzugefügt ✓','Added ✓');
+/* ayarlar */
+D("Benim ID'm (arkadaşların seni bununla bulur)",'Meine ID (so finden dich deine Freunde)','My ID (friends find you with it)');
+D("ID'yi kopyala",'ID kopieren','Copy ID');
+D('ID kopyalandı','ID kopiert','ID copied');
+D('Kopyalanamadı','Kopieren fehlgeschlagen',"Couldn't copy");
+D('İsmin (istediğin zaman değiştirebilirsin)','Dein Name (du kannst ihn jederzeit ändern)','Your name (you can change it any time)');
+D('Kaydet','Speichern','Save');
+D('İsim boş olamaz','Name darf nicht leer sein',"Name can't be empty");
+D('İsim değişti ✓','Name geändert ✓','Name changed ✓');
+D('Dil','Sprache','Language');
+D('Ülke veya dil ara…','Land oder Sprache suchen …','Search country or language…');
+D('Bu dilin çevirisi henüz hazır değil, arayüz İngilizce gösterilecek','Diese Sprache ist noch nicht übersetzt, die Oberfläche wird auf Englisch angezeigt',"This language isn't translated yet, the interface will be shown in English");
+D('Görünüm','Darstellung','Appearance');
+D('☀️ Açık','☀️ Hell','☀️ Light');
+D('🌙 Koyu','🌙 Dunkel','🌙 Dark');
+D('Bildirim sesi','Benachrichtigungston','Notification sound');
+D('Yedek: Hesabın ve mesajların sadece bu telefonda durur. Telefon değiştirirsen veya tarayıcı verisi silinirse yedek dosyasıyla geri dönersin. Arada bir indir!','Sicherung: Dein Konto und deine Nachrichten liegen nur auf diesem Gerät. Wenn du das Handy wechselst oder die Browserdaten löschst, kommst du mit der Sicherungsdatei zurück. Lade sie ab und zu herunter!','Backup: Your account and messages are stored only on this device. If you switch phones or clear browser data, you can come back with the backup file. Download it every now and then!');
+D('⬇️ Yedek indir','⬇️ Sicherung herunterladen','⬇️ Download backup');
+D('Çıkış yap ve verileri sil','Abmelden und Daten löschen','Log out and delete data');
+D('Tüm veriler bu telefondan silinecek. Yedek indirdin mi? Emin misin?','Alle Daten werden von diesem Gerät gelöscht. Hast du eine Sicherung heruntergeladen? Bist du sicher?','All data will be deleted from this device. Did you download a backup? Are you sure?');
+/* arama */
+D('Mikrofon','Mikrofon','Microphone');
+D('Kamera','Kamera','Camera');
+D('Aramaya biri ekle','Jemanden zum Anruf hinzufügen','Add someone to the call');
+D('Kapat','Auflegen','Hang up');
+D('Mikrofon/kamera izni verilmedi','Mikrofon-/Kamerazugriff nicht erlaubt','Microphone/camera permission denied');
+D('Zaten bir aramadasın','Du bist schon in einem Anruf',"You're already in a call");
+D('Aranıyor… (karşı tarafın uygulaması açık olmalı)','Anruf läuft … (die App des anderen muss geöffnet sein)',"Calling… (the other person's app must be open)");
+D('Eklenecek arkadaş yok','Keine Freunde zum Hinzufügen','No friends to add');
+D('📞 Ara','📞 Anrufen','📞 Call');
+D('Arandı','Angerufen','Called');
+D('Arıyor…','Ruft an …','Calling…');
+D('🎥 Görüntülü arıyor','🎥 Videoanruf','🎥 Video call');
+D('📞 Sesli arıyor','📞 Sprachanruf','📞 Voice call');
+D('Aç','Annehmen','Answer');
+D('Reddet','Ablehnen','Decline');
+
+let lang=(()=>{try{const c=localStorage.getItem('cc_lang');if(LANGS.some(l=>l[0]===c))return c}catch(e){}return 'de'})();
+let netState='wait';
+const LOC=()=>lang==='en'?'en-GB':lang;
+function trStr(s){
+  if(lang==='tr')return s;
+  const k=String(s).trim(),row=I18N[k];if(!row)return s;
+  const v=row[lang]||row.en;return String(s).replace(k,()=>v);
+}
+const T=s=>trStr(s);
+
+/* dil listesi: bayrak + kendi adı + ülke adı (Almanca) */
+const flagOf=r=>String.fromCodePoint(...[...r].map(c=>127397+c.charCodeAt(0)));
+function dnm(type,code,loc){try{return new Intl.DisplayNames([loc],{type,fallback:'none'}).of(code)||''}catch(e){return ''}}
+const capf=(s,l)=>s?s.charAt(0).toLocaleUpperCase(l)+s.slice(1):s;
+const INFO={};
+LANGS.forEach(([code,reg])=>{INFO[code]={code,reg,flag:flagOf(reg),native:capf(dnm('language',code,code),code)||code,de:dnm('language',code,'de')||code,country:dnm('region',reg,'de')||reg}});
+const nrm1=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+const nrm2=s=>String(s).toLowerCase().replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss');
+
+/* DOM çeviri katmanı: sayfadaki Türkçe kaynak yazıları seçili dile çevirir */
+const trSrc=new WeakMap(),trOut=new WeakMap();
+const skipEl=p=>!p||p.closest('[data-nt],script,style,textarea');
+function trText(n){
+  if(skipEl(n.parentElement))return;
+  const cur=n.nodeValue;if(trOut.get(n)===cur)return;
+  trSrc.set(n,cur);const out=trStr(cur);
+  if(out!==cur){trOut.set(n,out);n.nodeValue=out}
+}
+function trAttr(el,a){
+  const cur=el.getAttribute(a);if(cur==null)return;
+  const o=el.__o=el.__o||{};if(o['out_'+a]===cur)return;
+  o[a]=cur;const out=trStr(cur);if(out!==cur){o['out_'+a]=out;el.setAttribute(a,out)}
+}
+function trTree(node){
+  if(node.nodeType===3){trText(node);return}
+  if(node.nodeType!==1)return;
+  const w=document.createTreeWalker(node,NodeFilter.SHOW_TEXT);let n;while((n=w.nextNode()))trText(n);
+  if(node.matches('[placeholder],[title]'))['placeholder','title'].forEach(a=>trAttr(node,a));
+  node.querySelectorAll('[placeholder],[title]').forEach(el=>['placeholder','title'].forEach(a=>trAttr(el,a)));
+}
+function retr(root){
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;
+  while((n=w.nextNode())){
+    if(skipEl(n.parentElement))continue;
+    let src=trSrc.get(n);if(src===undefined)src=n.nodeValue;
+    trSrc.set(n,src);const out=trStr(src);
+    if(out!==n.nodeValue){trOut.set(n,out);n.nodeValue=out}
+  }
+  root.querySelectorAll('[placeholder],[title]').forEach(el=>['placeholder','title'].forEach(a=>{
+    const cur=el.getAttribute(a);if(cur==null)return;
+    const o=el.__o=el.__o||{};const src=o[a]!==undefined?o[a]:cur;o[a]=src;
+    const out=trStr(src);if(out!==cur){o['out_'+a]=out;el.setAttribute(a,out)}
+  }));
+}
+function i18nStart(){
+  document.documentElement.lang=lang;document.documentElement.dir=RTL.has(lang)?'rtl':'ltr';
+  trTree(document.body);
+  new MutationObserver(ms=>{for(const m of ms){
+    if(m.type==='childList')m.addedNodes.forEach(trTree);
+    else if(m.type==='characterData')trText(m.target);
+    else if(m.type==='attributes')trAttr(m.target,m.attributeName);
+  }}).observe(document.body,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['placeholder','title']});
+}
+const langLabels=[];
+function setLang(c){
+  lang=c;try{localStorage.setItem('cc_lang',c)}catch(e){}
+  document.documentElement.lang=c;document.documentElement.dir=RTL.has(c)?'rtl':'ltr';
+  retr(document.body);
+  for(let i=langLabels.length;i--;)if(!langLabels[i]())langLabels.splice(i,1);
+  if(DB){renderList();renderHead();if(cur)renderMsgs();else renderMain();setNet(netState)}
+}
+function mountLangPicker(btn,box){
+  const upd=()=>{if(!btn.isConnected)return false;const i=INFO[lang];btn.textContent=i.flag+' '+i.native+'  '+(box.hidden?'▾':'▴');return true};
+  langLabels.push(upd);
+  box.innerHTML='<input class="lsearch" placeholder="Ülke veya dil ara…" autocomplete="off" autocapitalize="none" autocorrect="off"><div class="llist"></div>';
+  const q=box.querySelector('.lsearch'),list=box.querySelector('.llist');
+  const draw=()=>{
+    const a=nrm1(q.value.trim()),b=nrm2(q.value.trim());
+    const items=LANGS.map(l=>INFO[l[0]]).filter(i=>{
+      if(!a)return true;
+      const t=i.native+' '+i.de+' '+i.country+' '+i.code;
+      return nrm1(t).includes(a)||nrm2(t).includes(b);
+    });
+    list.innerHTML=items.map(i=>`<button class="lrow${i.code===lang?' on':''}" data-lang="${i.code}" data-nt><span>${i.flag}</span><b>${esc(i.native)}</b><small>${esc(i.country)}</small>${i.code===lang?'<span>✓</span>':''}</button>`).join('')||'<p class="lab" data-nt>—</p>';
+  };
+  btn.onclick=()=>{box.hidden=!box.hidden;upd();if(!box.hidden){q.value='';draw();setTimeout(()=>{try{q.focus()}catch(e){}},30)}};
+  q.oninput=draw;
+  list.onclick=e=>{
+    const b=e.target.closest('[data-lang]');if(!b)return;
+    const c=b.dataset.lang;box.hidden=true;setLang(c);
+    if(!['de','tr','en'].includes(c))toast('Bu dilin çevirisi henüz hazır değil, arayüz İngilizce gösterilecek');
+  };
+  box.hidden=true;upd();
+}
+
+/* ---------- depolama (IndexedDB, olmazsa localStorage) ---------- */
+const store={idb:null,
+ async init(){try{this.idb=await new Promise((ok,no)=>{const r=indexedDB.open('cemchat',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)})}catch(e){this.idb=null}},
+ get(){if(!this.idb){try{return Promise.resolve(JSON.parse(localStorage.getItem('cc_db')||'null'))}catch(e){return Promise.resolve(null)}}
+  return new Promise(ok=>{try{const q=this.idb.transaction('kv').objectStore('kv').get('db');q.onsuccess=()=>ok(q.result||null);q.onerror=()=>ok(null)}catch(e){ok(null)}})},
+ set(v){if(!this.idb){try{localStorage.setItem('cc_db',JSON.stringify(v))}catch(e){}return}try{const t=this.idb.transaction('kv','readwrite');t.objectStore('kv').put(v,'db')}catch(e){}}};
+let saveT=null;const save=()=>{clearTimeout(saveT);saveT=setTimeout(()=>store.set(DB),300)};
+function fixDB(d){d.friends=d.friends||{};d.requests=d.requests||[];d.outReq=d.outReq||[];d.groups=d.groups||{};d.msgs=d.msgs||{};d.read=d.read||{};d.outbox=d.outbox||[];return d}
+
+function toast(t){const d=document.createElement('div');d.id='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2800)}
+let actx;
+function beep(f=660,len=.15){if(!prefs.sound)return;try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=f;g.gain.value=.08;o.connect(g);g.connect(actx.destination);o.start();o.stop(actx.currentTime+len)}catch(e){}}
+
+/* ---------- yardımcılar ---------- */
+function nameOf(id){
+  if(id===DB.me.id)return DB.me.name;
+  if(DB.friends[id])return DB.friends[id];
+  for(const g of Object.values(DB.groups)){const m=g.members.find(x=>x.id===id);if(m)return m.name}
+  const r=DB.requests.find(x=>x.id===id);if(r)return r.name;
+  return peerNames[id]||id;
+}
+const initial=n=>esc((n||'?').trim().charAt(0).toUpperCase());
+function colorOf(s){let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))%360;return `hsl(${h} 40% 45%)`}
+const av=(name,id)=>`<div class="av" style="background:${colorOf(id||name)}">${initial(name)}</div>`;
+const hm=ts=>new Date(ts).toLocaleTimeString(LOC(),{hour:'2-digit',minute:'2-digit'});
+function fmtT(ts){const d=new Date(ts),n=new Date();if(d.toDateString()===n.toDateString())return hm(ts);const y=new Date(n-864e5);if(d.toDateString()===y.toDateString())return T('Dün');return d.toLocaleDateString(LOC(),{day:'2-digit',month:'2-digit',year:'2-digit'})}
+function chatsList(){
+  const a=Object.entries(DB.friends).map(([id,name])=>({id:dmKey(DB.me.id,id),name,group:false,peer:id}));
+  return a.concat(Object.values(DB.groups).map(g=>({id:'g:'+g.id,name:g.name,group:true,g})));
+}
+const chatById=id=>chatsList().find(c=>c.id===id);
+const lastMsg=id=>{const a=DB.msgs[id];return a&&a[a.length-1]};
+const unread=id=>{const r=DB.read[id]||0;return (DB.msgs[id]||[]).filter(m=>m.from!==DB.me.id&&m.ts>r).length};
+const pv=m=>m.type==='text'?m.text:T(m.type==='voice'?'🎤 Sesli mesaj':'📷 Fotoğraf');
+const online=id=>!!(conns[id]&&conns[id].open);
+function setNet(ok){netState=ok;const e=$('#net');if(!e)return;e.textContent=ok===true?'● çevrimiçi':ok===false?'○ bağlantı yok':'○ bağlanıyor…'}
+
+/* ---------- ağ (PeerJS, sunucusuz P2P) ---------- */
+function startPeer(){
+  setNet('wait');
+  if(peer&&!peer.destroyed){try{peer.destroy()}catch(e){}}
+  peer=new Peer(pid(DB.me.id));
+  const p=peer;
+  p.on('open',()=>{fresh=false;retry=0;setNet(true);flushAll()});
+  p.on('connection',setupConn);
+  p.on('call',onCall);
+  p.on('disconnected',()=>{setNet(false);setTimeout(()=>{try{if(!p.destroyed)p.reconnect()}catch(e){}},2000)});
+  p.on('close',()=>setNet(false));
+  p.on('error',e=>{
+    if(e.type==='unavailable-id'){
+      if(fresh){DB.me.id=rid(8);save();setTimeout(startPeer,100)}
+      else{retry++;try{p.destroy()}catch(x){}if(retry<6)setTimeout(startPeer,3500);else{setNet(false);toast('Bu hesap başka yerde açık olabilir')}}
+    }else if(['network','server-error','socket-error','socket-closed'].includes(e.type))setNet(false);
+  });
+}
+function ensurePeer(){
+  if(!DB)return;
+  if(!peer||peer.destroyed)startPeer();
+  else if(peer.disconnected){try{peer.reconnect()}catch(e){startPeer()}}
+}
+function sendRaw(c,obj){
+  const s=JSON.stringify(obj),N=14000;
+  if(s.length<=N){c.send(obj);return}
+  const id=rid(10),n=Math.ceil(s.length/N);
+  for(let i=0;i<n;i++)c.send({t:'chunk',id,i,n,d:s.slice(i*N,(i+1)*N)});
+}
+function setupConn(c){
+  const id=fid(c.peer);
+  c.on('open',()=>{conns[id]=c;try{sendRaw(c,{t:'hello',name:DB.me.name})}catch(e){}flushTo(id);renderHead()});
+  c.on('data',d=>onRaw(id,d));
+  c.on('close',()=>{if(conns[id]===c)delete conns[id];renderHead()});
+  c.on('error',()=>{});
+}
+function getConn(id){
+  const c=conns[id];if(c&&c.open)return Promise.resolve(c);
+  if(pendingConn[id])return pendingConn[id];
+  if(!peer||peer.destroyed||peer.disconnected)return Promise.resolve(null);
+  return pendingConn[id]=new Promise(res=>{
+    let done=false,t;
+    const fin=v=>{if(done)return;done=true;clearTimeout(t);delete pendingConn[id];res(v)};
+    let c;try{c=peer.connect(pid(id),{reliable:true,serialization:'json'})}catch(e){return fin(null)}
+    t=setTimeout(()=>{try{c.close()}catch(e){}fin(null)},7000);
+    c.on('open',()=>fin(c));c.on('error',()=>fin(null));c.on('close',()=>fin(null));
+    setupConn(c);
+  });
+}
+async function sendTo(id,obj){const c=await getConn(id);if(!c)return false;try{sendRaw(c,obj);return true}catch(e){return false}}
+
+/* gönderilemeyenler sırada bekler, karşı taraf açılınca gider */
+function enqueue(to,kind,extra){
+  const k=rid(12);DB.outbox.push(Object.assign({k,to,kind,sentAt:0},extra));save();flushTo(to);return k;
+}
+function payloadOf(o){
+  if(o.kind==='raw')return o.payload;
+  if(o.kind==='del')return {t:'del',id:o.mid,chat:o.chat.startsWith('g:')?o.chat:'dm'};
+  if(o.kind==='msg'){
+    const m=(DB.msgs[o.chat]||[]).find(x=>x.id===o.mid);if(!m)return null;
+    return {t:'msg',chat:o.chat.startsWith('g:')?o.chat:'dm',id:m.id,type:m.type,text:m.text,data:m.data,dur:m.dur,ts:m.ts};
+  }
+  return null;
+}
+async function flushTo(id){
+  const items=DB.outbox.filter(o=>o.to===id&&Date.now()-o.sentAt>10000);if(!items.length)return;
+  const c=await getConn(id);if(!c)return;
+  for(const o of items){
+    const p=payloadOf(o);
+    if(!p){DB.outbox=DB.outbox.filter(x=>x!==o);continue}
+    try{sendRaw(c,Object.assign({k:o.k},p));o.sentAt=Date.now()}catch(e){}
+  }
+  save();
+}
+function flushAll(){[...new Set(DB.outbox.map(o=>o.to))].forEach(flushTo)}
+
+/* ---------- gelen veriler ---------- */
+const okData=s=>typeof s==='string'&&s.length<4e6&&/^data:(audio|image)\/[a-z0-9.+-]+;base64,[A-Za-z0-9+\/=]+$/i.test(s);
+function onRaw(from,d){
+  if(!d||typeof d!=='object')return;
+  if(d.t==='chunk'){
+    const key=from+d.id,b=chunkBuf[key]=chunkBuf[key]||{n:d.n,p:[],c:0};
+    if(!b.p[d.i]){b.p[d.i]=d.d;b.c++}
+    if(b.c===b.n){delete chunkBuf[key];try{handle(from,JSON.parse(b.p.join('')))}catch(e){}}
+    return;
+  }
+  handle(from,d);
+}
+const ack=(from,d)=>{if(d.k)sendTo(from,{t:'ack',k:d.k})};
+function handle(from,d){
+  if(!DB)return;
+  switch(d.t){
+    case 'hello':{
+      const n=String(d.name||'').slice(0,24);if(!n)return;peerNames[from]=n;
+      if(DB.friends[from])DB.friends[from]=n;
+      Object.values(DB.groups).forEach(g=>g.members.forEach(m=>{if(m.id===from)m.name=n}));
+      const r=DB.requests.find(x=>x.id===from);if(r)r.name=n;
+      save();renderList();renderHead();break;
+    }
+    case 'ack':{
+      const o=DB.outbox.find(x=>x.k===d.k&&x.to===from);
+      if(o){DB.outbox=DB.outbox.filter(x=>x!==o);save();if(o.kind==='msg')setTick(o.mid)}
+      break;
+    }
+    case 'freq':{
+      ack(from,d);const n=String(d.name||'').slice(0,24)||from;
+      if(DB.friends[from]){enqueue(from,'raw',{payload:{t:'facc',name:DB.me.name}});break}
+      if(DB.outReq.includes(from)){becomeFriends(from,n);break}
+      const r=DB.requests.find(x=>x.id===from);
+      if(r)r.name=n;else{DB.requests.push({id:from,name:n});beep(880,.3);toast(n+' '+T('sana arkadaşlık isteği gönderdi 📥'))}
+      save();renderTop();break;
+    }
+    case 'facc':{
+      ack(from,d);const n=String(d.name||'').slice(0,24)||from;
+      if(DB.outReq.includes(from)||DB.requests.some(x=>x.id===from)){
+        DB.outReq=DB.outReq.filter(x=>x!==from);DB.requests=DB.requests.filter(x=>x.id!==from);
+        DB.friends[from]=n;save();renderAll();beep(880,.3);toast(n+' '+T('isteğini kabul etti 🎉'));
+      }else if(DB.friends[from]){DB.friends[from]=n;save();renderList()}
+      break;
+    }
+    case 'msg':{
+      ack(from,d);
+      let chat;
+      if(typeof d.chat==='string'&&d.chat.startsWith('g:')){
+        const g=DB.groups[d.chat.slice(2)];if(!g||!g.members.some(m=>m.id===from))return;chat=d.chat;
+      }else{if(!DB.friends[from])return;chat=dmKey(DB.me.id,from)}
+      if(!['text','voice','image'].includes(d.type)||typeof d.id!=='string'||d.id.length>30)return;
+      if((DB.msgs[chat]||[]).some(x=>x.id===d.id))return;
+      const m={id:d.id,chat,from,type:d.type,ts:Math.min(+d.ts||Date.now(),Date.now()+60000)};
+      if(d.type==='text'){m.text=String(d.text||'').slice(0,4000);if(!m.text.trim())return}
+      else{if(!okData(d.data))return;m.data=d.data;m.dur=Math.min(+d.dur||0,3600)}
+      addMsg(m);break;
+    }
+    case 'del':{
+      ack(from,d);
+      const chat=(typeof d.chat==='string'&&d.chat.startsWith('g:'))?d.chat:dmKey(DB.me.id,from);
+      const a=DB.msgs[chat];if(!a)return;const i=a.findIndex(x=>x.id===d.id&&x.from===from);
+      if(i>=0){a.splice(i,1);save();const row=document.querySelector(`.row[data-id="${CSS.escape(d.id)}"]`);if(row)row.remove();renderList()}
+      break;
+    }
+    case 'gnew':case 'gupd':{
+      ack(from,d);const g=d.group;
+      if(!g||!/^[a-z]{10}$/.test(g.id||'')||!Array.isArray(g.members)||g.members.length>50)return;
+      const mem=g.members.filter(m=>m&&isId(m.id)).map(m=>({id:m.id,name:String(m.name||'').slice(0,24)||m.id}));
+      const old=DB.groups[g.id];
+      if(old){if(!old.members.some(m=>m.id===from))return}
+      else{if(!DB.friends[from])return}
+      if(!mem.some(m=>m.id===DB.me.id)){if(old){delete DB.groups[g.id];if(cur==='g:'+g.id)cur=null;save();renderAll()}return}
+      DB.groups[g.id]={id:g.id,name:String(g.name||'Grup').slice(0,24),owner:g.owner,members:mem};
+      if(!old)beep(880,.2);
+      save();renderAll();break;
+    }
+    case 'cjoin':{
+      if(callState&&callState.room===d.room&&!callState.conns[from]&&DB.me.id<from)connectCall(from);
+      break;
+    }
+  }
+}
+function becomeFriends(id,name){
+  DB.friends[id]=name;DB.requests=DB.requests.filter(x=>x.id!==id);DB.outReq=DB.outReq.filter(x=>x!==id);
+  enqueue(id,'raw',{payload:{t:'facc',name:DB.me.name}});save();renderAll();
+}
+
+/* ---------- ekran ---------- */
+function showWelcome(){$('#app').hidden=true;$('#welcome').hidden=false}
+function renderAll(){renderTop();renderList();if(cur&&!chatById(cur)){cur=null}renderHead();if(!cur)renderMain()}
+function renderTop(){const n=DB.requests.length;$('#inboxBd').hidden=!n;$('#inboxBd').textContent=n}
+function renderList(){
+  const q=$('#q').value.trim().toLowerCase();
+  const a=chatsList().filter(c=>c.name.toLowerCase().includes(q));
+  a.sort((x,y)=>(((lastMsg(y.id)||{}).ts||0)-((lastMsg(x.id)||{}).ts||0))||x.name.localeCompare(y.name));
+  $('#chatlist').innerHTML=a.length?a.map(c=>{
+    const l=lastMsg(c.id),u=unread(c.id);
+    return `<div class="item${c.id===cur?' on':''}" data-chat="${esc(c.id)}">${av(c.name,c.peer||c.id)}<div class="mid"><div class="r1"><b data-nt>${esc(c.name)}</b><span class="t${u?' u':''}">${l?fmtT(l.ts):''}</span></div><div class="r2"><span class="pv" data-nt>${l?esc((c.group&&l.from!==DB.me.id?nameOf(l.from)+': ':'')+pv(l)):T('Henüz mesaj yok')}</span>${u?`<i class="bd">${u}</i>`:''}</div></div></div>`;
+  }).join(''):`<p class="empty">Henüz kimse yok.<br>Sağ alttaki ➕ ile bir arkadaşını<br>ID'siyle veya QR ile ekle.</p>`;
+  const tot=chatsList().reduce((s,c)=>s+unread(c.id),0);
+  document.title=(tot?`(${tot}) `:'')+'Cem Chat';
+}
+$('#chatlist').onclick=e=>{const it=e.target.closest('.item');if(it)openChat(it.dataset.chat)};
+$('#q').oninput=renderList;
+const EMOJIS='😀 😃 😄 😁 😆 😂 🤣 😊 😍 😘 😎 🤩 🥳 😉 🙂 🙃 😋 😜 🤔 😐 😴 😢 😭 😡 🥺 😱 🤗 🙄 👍 👎 👏 🙏 💪 👋 🤝 ❤️ 💔 🔥 ✨ 🎉 💯 🌹 ☕ 🍕 ⚽ 🎵'.split(' ');
+function openChat(id){
+  cur=id;DB.read[id]=Date.now();save();
+  document.body.classList.add('chat-open');
+  renderList();renderChat();
+}
+function renderMain(){
+  if(cur&&chatById(cur))return renderChat();
+  cur=null;document.body.classList.remove('chat-open');
+  $('#main').innerHTML=`<div class="emptymain"><div class="big">💬</div><h2>Cem Chat</h2><p style="line-height:1.5">Soldan bir sohbet seç<br>ya da ➕ ile arkadaş ekle.<br><br>🔒 Mesajlar sunucuda değil, doğrudan telefonlar arasında gider.</p></div>`;
+}
+function renderChat(){
+  const c=chatById(cur);if(!c)return renderMain();
+  $('#main').innerHTML=`<div class="chead" id="chead"></div><div id="msgs"></div><div id="emoji" hidden>${EMOJIS.map(e=>`<button data-e="${e}">${e}</button>`).join('')}</div>
+  <div id="comp"><div class="pill"><button class="ib" id="emojiBtn">😊</button><input id="txt" placeholder="Mesaj" autocomplete="off"><button class="ib" id="attBtn">📎</button></div><button id="micBtn">🎤</button><input type="file" id="file" accept="image/*" hidden></div>`;
+  renderHead();renderMsgs();
+  const txt=$('#txt');
+  txt.oninput=()=>{$('#micBtn').textContent=txt.value.trim()?'➤':'🎤'};
+  txt.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();sendTxt()}};
+  $('#micBtn').onclick=()=>txt.value.trim()?sendTxt():startRec();
+  $('#emojiBtn').onclick=()=>{$('#emoji').hidden=!$('#emoji').hidden};
+  $('#emoji').onclick=e=>{const b=e.target.closest('button');if(b){txt.value+=b.dataset.e;txt.focus();txt.oninput()}};
+  $('#attBtn').onclick=()=>$('#file').click();
+  $('#file').onchange=e=>{const f=e.target.files[0];e.target.value='';if(f)sendImage(f)};
+  $('#msgs').onclick=e=>{
+    const d=e.target.closest('[data-del]');
+    if(d&&confirm(T('Bu mesaj herkesten silinsin mi?')))delMsg(d.dataset.del);
+    const im=e.target.closest('[data-big]');
+    if(im){const m=(DB.msgs[cur]||[]).find(x=>x.id===im.dataset.big);if(m){const lb=$('#lb');lb.innerHTML=`<img src="${m.data}" alt="">`;lb.hidden=false}}
+  };
+  if(!matchMedia('(max-width:800px)').matches)txt.focus();
+}
+$('#lb').onclick=()=>{$('#lb').hidden=true;$('#lb').innerHTML=''};
+function renderHead(){
+  const c=cur&&chatById(cur),h=$('#chead');if(!c||!h)return;
+  const sub=c.group?c.g.members.map(m=>m.id===DB.me.id?T('Sen'):m.name).join(', '):(online(c.peer)?T('çevrimiçi'):'ID: '+c.peer);
+  h.innerHTML=`<button class="ib back" id="bBack">←</button>${av(c.name,c.peer||c.id)}<div class="ti" id="hTi"><b data-nt>${esc(c.name)}</b><small>${esc(sub)}</small></div><button class="ib" id="bVideo" title="Görüntülü ara">🎥</button><button class="ib" id="bVoice" title="Sesli ara">📞</button>`;
+  $('#bBack').onclick=()=>{cur=null;document.body.classList.remove('chat-open');renderList();renderMain()};
+  $('#bVoice').onclick=()=>startCall('voice');$('#bVideo').onclick=()=>startCall('video');
+  $('#hTi').onclick=()=>c.group?groupInfo(c):toast(T("Bu kişinin ID'si:")+' '+c.peer);
+}
+function statusOf(m){return DB.outbox.some(o=>o.kind==='msg'&&o.mid===m.id)?['✓','']:['✓✓','ok']}
+function msgHTML(m){
+  const c=chatById(m.chat),mine=m.from===DB.me.id;
+  const day=new Date(m.ts).toLocaleDateString(LOC(),{day:'numeric',month:'long',year:'numeric'});
+  let h='';if(day!==lastDay){h=`<div class="day"><span>${day}</span></div>`;lastDay=day;lastFrom=''}
+  const tail=m.from!==lastFrom;lastFrom=m.from;
+  let body='';
+  if(m.type==='text')body=`<span data-nt>${esc(m.text).replace(/\n/g,'<br>')}</span>`;
+  else if(m.type==='voice')body=`<div class="vc"><audio controls preload="metadata" src="${esc(m.data)}"></audio></div>`;
+  else body=`<img class="pic" src="${esc(m.data)}" data-big="${m.id}" alt="foto">`;
+  const st=mine?statusOf(m):null;
+  return h+`<div class="row ${mine?'me':''}${tail?' tail':''}" data-id="${m.id}"><div class="bub">${c&&c.group&&!mine&&tail?`<div class="who" data-nt style="color:${colorOf(m.from)}">${esc(nameOf(m.from))}</div>`:''}${body}<span class="meta">${hm(m.ts)}${mine?` <span class="tick ${st[1]}" data-tk="${m.id}">${st[0]}</span><button class="del" data-del="${m.id}" title="Sil">🗑</button>`:''}</span></div></div>`;
+}
+function setTick(mid){
+  const el=document.querySelector(`[data-tk="${CSS.escape(mid)}"]`);if(!el)return;
+  const m=Object.values(DB.msgs).flat().find(x=>x.id===mid);if(!m)return;const s=statusOf(m);el.textContent=s[0];el.className='tick '+s[1];
+}
+function renderMsgs(){
+  const el=$('#msgs');if(!el)return;lastDay='';lastFrom='';
+  el.innerHTML=(DB.msgs[cur]||[]).map(msgHTML).join('');el.scrollTop=el.scrollHeight;
+}
+function addMsg(m){
+  const a=DB.msgs[m.chat]=DB.msgs[m.chat]||[];
+  if(a.some(x=>x.id===m.id))return;
+  a.push(m);a.sort((x,y)=>x.ts-y.ts);
+  const mine=m.from===DB.me.id;
+  if(m.chat===cur){
+    const el=$('#msgs');
+    if(el){const near=el.scrollHeight-el.scrollTop-el.clientHeight<160;el.insertAdjacentHTML('beforeend',msgHTML(m));if(near||mine)el.scrollTop=el.scrollHeight}
+    if(!document.hidden)DB.read[cur]=Date.now();else if(!mine)beep();
+  }else if(!mine)beep();
+  save();renderList();
+}
+function sendMessage(chat,type,fields){
+  const c=chatById(chat);if(!c)return;
+  const m=Object.assign({id:rid(14),chat,from:DB.me.id,type,ts:Date.now()},fields);
+  addMsg(m);
+  const targets=c.group?c.g.members.map(x=>x.id).filter(i=>i!==DB.me.id):[c.peer];
+  targets.forEach(t=>enqueue(t,'msg',{mid:m.id,chat}));
+}
+function sendTxt(){
+  const t=$('#txt'),text=t.value.trim();if(!text)return;
+  t.value='';$('#micBtn').textContent='🎤';sendMessage(cur,'text',{text});
+}
+function delMsg(id){
+  const chat=cur,a=DB.msgs[chat]||[],i=a.findIndex(x=>x.id===id&&x.from===DB.me.id);if(i<0)return;
+  a.splice(i,1);DB.outbox=DB.outbox.filter(o=>!(o.kind==='msg'&&o.mid===id));
+  const row=document.querySelector(`.row[data-id="${CSS.escape(id)}"]`);if(row)row.remove();
+  const c=chatById(chat);if(c){const t=c.group?c.g.members.map(x=>x.id).filter(x=>x!==DB.me.id):[c.peer];t.forEach(x=>enqueue(x,'del',{mid:id,chat}))}
+  save();renderList();
+}
+const blobToData=b=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).replace(/^data:([^;,]+)[^,]*,/,'data:$1;base64,'));r.onerror=no;r.readAsDataURL(b)});
+async function sendImage(file){
+  try{
+    const bmp=await createImageBitmap(file),sc=Math.min(1,1024/Math.max(bmp.width,bmp.height));
+    const cv=document.createElement('canvas');cv.width=Math.round(bmp.width*sc);cv.height=Math.round(bmp.height*sc);
+    cv.getContext('2d').drawImage(bmp,0,0,cv.width,cv.height);
+    const data=cv.toDataURL('image/jpeg',.72);sendMessage(cur,'image',{data});
+  }catch(e){toast('Fotoğraf gönderilemedi')}
+}
+
+/* ---------- sesli mesaj ---------- */
+let rec=null,recStream=null,recChunks=[],recT0=0,recTick=null,recChat=null;
+async function startRec(){
+  if(!navigator.mediaDevices||!window.MediaRecorder)return toast('Bu tarayıcı ses kaydını desteklemiyor');
+  try{recStream=await navigator.mediaDevices.getUserMedia({audio:true})}catch(e){return toast('Mikrofon izni gerekli')}
+  const mt=['audio/mp4','audio/webm;codecs=opus','audio/webm','audio/ogg'].find(t=>MediaRecorder.isTypeSupported(t))||'';
+  rec=new MediaRecorder(recStream,mt?{mimeType:mt}:{});recChunks=[];recChat=cur;
+  rec.ondataavailable=e=>e.data.size&&recChunks.push(e.data);
+  rec.start();recT0=Date.now();
+  $('#comp').hidden=true;
+  const bar=document.createElement('div');bar.id='recbar';
+  bar.innerHTML=`<button class="ib" id="rCancel" style="color:var(--red)">🗑</button><i class="dot"></i><span id="rTime">0:00</span><button id="rSend" style="width:48px;height:48px;border-radius:50%;background:var(--green);color:#fff;font-size:21px">➤</button>`;
+  $('#main').appendChild(bar);
+  recTick=setInterval(()=>{const s=Math.floor((Date.now()-recT0)/1000);$('#rTime').textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');if(s>=180)stopRec(true)},250);
+  $('#rCancel').onclick=()=>stopRec(false);$('#rSend').onclick=()=>stopRec(true);
+}
+function stopRec(send){
+  if(!rec)return;clearInterval(recTick);
+  const dur=Math.round((Date.now()-recT0)/1000),chat=recChat,r=rec;rec=null;
+  r.onstop=async()=>{
+    recStream.getTracks().forEach(t=>t.stop());
+    if(send&&dur>=1){try{const data=await blobToData(new Blob(recChunks,{type:r.mimeType||'audio/webm'}));sendMessage(chat,'voice',{data,dur})}catch(e){toast('Ses gönderilemedi')}}
+  };
+  r.stop();
+  const b=$('#recbar');if(b)b.remove();const c=$('#comp');if(c)c.hidden=false;
+}
+
+/* ---------- pencereler ---------- */
+let modalRefresh=null,modalCleanup=[];
+function openModal(title,html){
+  closeModal();
+  const m=$('#modal');m.hidden=false;
+  m.innerHTML=`<div class="mbox"><div class="mh"><h3>${esc(title)}</h3><button class="ib" id="mx">✖</button></div><div id="mb" style="display:flex;flex-direction:column;gap:12px">${html}</div></div>`;
+  $('#mx').onclick=closeModal;m.onmousedown=e=>{if(e.target===m)closeModal()};
+  return $('#mb');
+}
+function closeModal(){modalCleanup.forEach(f=>{try{f()}catch(e){}});modalCleanup=[];modalRefresh=null;const m=$('#modal');m.hidden=true;m.innerHTML='';m.style.zIndex=''}
+
+function addModal(prefill){
+  const b=openModal('Arkadaş ekle',`<div class="tabs"><button data-t="id" class="on">ID ile</button><button data-t="qr">QR ile</button></div><div id="tb" style="display:flex;flex-direction:column;gap:12px"></div>`);
+  const tabs=b.querySelectorAll('.tabs button');
+  tabs.forEach(t=>t.onclick=()=>{tabs.forEach(x=>x.classList.toggle('on',x===t));stopScan();t.dataset.t==='id'?tabId():tabQr()});
+  tabId(prefill);
+  function tabId(pre){
+    $('#tb').innerHTML=`<div class="lab">Arkadaşının ID'sini yaz (8 harf)</div><div style="display:flex;gap:8px"><input id="fid" maxlength="8" placeholder="ör: abcdefgh" autocomplete="off" autocapitalize="none" autocorrect="off"><button class="btn" id="fgo">Ara</button></div><div id="fres"></div>`;
+    $('#fid').oninput=e=>e.target.value=e.target.value.toLowerCase().replace(/[^a-z]/g,'');
+    $('#fgo').onclick=()=>lookup($('#fid').value);$('#fid').onkeydown=e=>{if(e.key==='Enter')lookup($('#fid').value)};
+    if(pre){$('#fid').value=pre;lookup(pre)}
+  }
+  async function lookup(id){
+    id=(id||'').trim();const box=$('#fres');if(!box)return;
+    if(!isId(id)){box.innerHTML='<p class="lab">ID tam 8 harften oluşmalı.</p>';return}
+    if(id===DB.me.id){box.innerHTML='<p class="lab">Bu sensin 🙂</p>';return}
+    if(DB.friends[id]){box.innerHTML=`<p class="lab">${esc(DB.friends[id])} ${T('zaten arkadaşın ✓')}</p>`;return}
+    if(DB.outReq.includes(id)){box.innerHTML='<p class="lab">İstek zaten gönderildi, kabul etmesini bekle.</p>';return}
+    box.innerHTML='<p class="lab">Aranıyor…</p>';
+    const c=await getConn(id);
+    if(c){const t0=Date.now();while(!peerNames[id]&&Date.now()-t0<2000)await new Promise(r=>setTimeout(r,100))}
+    if(!$('#fres'))return;
+    const nm=peerNames[id];
+    box.innerHTML=c?`<div class="li">${av(nm||id,id)}<div class="nm"><b>${esc(nm||'Kullanıcı')}</b><br><small>ID: ${esc(id)} · ${T('çevrimiçi')}</small></div><button class="btn" id="fsend">İstek gönder</button></div>`
+      :`<p class="lab">Şu an ulaşılamadı. ID yanlış olabilir ya da kişi çevrimdışı. İstek yine de gönderilebilir, kişi uygulamayı açınca ona ulaşır.</p><button class="btn" id="fsend">Yine de istek gönder</button>`;
+    $('#fsend').onclick=()=>{
+      if(DB.requests.some(x=>x.id===id)){becomeFriends(id,nm||id);toast('Arkadaş oldunuz 🎉')}
+      else{DB.outReq.push(id);enqueue(id,'raw',{payload:{t:'freq',name:DB.me.name}});save();toast('İstek gönderildi ✓')}
+      closeModal();
+    };
+  }
+  function tabQr(){
+    $('#tb').innerHTML=`<div class="lab" style="text-align:center">Benim QR kodum — arkadaşın okutsun</div><div id="qrbox"></div><div class="lab" style="text-align:center">veya arkadaşının QR'ını tara:</div><button class="btn sec" id="scanBtn">📷 QR tara</button><video id="scanv" playsinline muted hidden></video>`;
+    try{new QRCode($('#qrbox'),{text:location.origin+location.pathname+'?add='+DB.me.id,width:176,height:176})}catch(e){$('#qrbox').textContent='QR yüklenemedi (internet gerekli)'}
+    $('#scanBtn').onclick=startScan;
+  }
+  let scanStream=null,scanTimer=null;
+  function stopScan(){clearInterval(scanTimer);if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null}}
+  modalCleanup.push(stopScan);
+  async function startScan(){
+    if(!('BarcodeDetector' in window))return toast('Bu tarayıcı QR okuyamıyor. Telefonun kamerasıyla okut veya ID ile ekle.');
+    try{scanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}})}catch(e){return toast('Kamera izni gerekli')}
+    const v=$('#scanv');v.hidden=false;v.srcObject=scanStream;v.play();
+    const det=new BarcodeDetector({formats:['qr_code']});
+    scanTimer=setInterval(async()=>{
+      try{const r=await det.detect(v);if(r.length){const m=/add=([a-z]{8})/.exec(r[0].rawValue)||/^([a-z]{8})$/.exec(r[0].rawValue);if(m){stopScan();v.hidden=true;tabs[0].click();$('#fid').value=m[1];lookup(m[1])}}}catch(e){}
+    },400);
+  }
+}
+$('#fab').onclick=()=>addModal();
+
+function inboxModal(){
+  const draw=()=>{
+    const b=$('#mb');if(!b)return;
+    b.innerHTML=DB.requests.length?DB.requests.map(u=>`<div class="li">${av(u.name,u.id)}<div class="nm"><b>${esc(u.name)}</b><br><small>ID: ${esc(u.id)}</small></div><button class="btn" data-ok="${u.id}">Kabul</button><button class="btn red" data-no="${u.id}">Red</button></div>`).join(''):'<p class="empty">Bekleyen arkadaşlık isteği yok.</p>';
+  };
+  const b=openModal('Mesaj kutusu',''); b.previousElementSibling;draw();
+  b.onclick=e=>{
+    const ok=e.target.closest('[data-ok]'),no=e.target.closest('[data-no]');if(!ok&&!no)return;
+    const id=(ok||no).dataset.ok||(ok||no).dataset.no,u=DB.requests.find(x=>x.id===id);if(!u)return;
+    if(ok){becomeFriends(id,u.name);toast('Kabul edildi ✓')}else{DB.requests=DB.requests.filter(x=>x.id!==id);save();renderTop();toast('Reddedildi')}
+    draw();
+  };
+}
+$('#bInbox').onclick=inboxModal;
+
+function groupModal(){
+  const fr=Object.entries(DB.friends);
+  if(!fr.length)return toast('Önce arkadaş eklemelisin');
+  const b=openModal('Grup kur',`<input id="gname" maxlength="24" placeholder="Grup adı"><div class="lab">Kimler olsun?</div><div>${fr.map(([id,n])=>`<label class="chk"><input type="checkbox" value="${id}">${av(n,id)}<span>${esc(n)}</span></label>`).join('')}</div><button class="btn" id="gmk">Grubu kur</button>`);
+  $('#gmk').onclick=()=>{
+    const name=$('#gname').value.trim().slice(0,24);if(!name)return toast('Grup adı yaz');
+    const sel=[...b.querySelectorAll('input[type=checkbox]:checked')].map(x=>x.value);if(!sel.length)return toast('En az 1 arkadaş seç');
+    const g={id:rid(10),name,owner:DB.me.id,members:[{id:DB.me.id,name:DB.me.name},...sel.map(id=>({id,name:DB.friends[id]}))]};
+    DB.groups[g.id]=g;sel.forEach(id=>enqueue(id,'raw',{payload:{t:'gnew',group:g}}));save();closeModal();renderList();openChat('g:'+g.id);
+  };
+}
+$('#bGroup').onclick=groupModal;
+
+function groupInfo(c){
+  const draw=()=>{
+    const g=DB.groups[c.g.id];if(!g)return closeModal();
+    const cand=Object.entries(DB.friends).filter(([id])=>!g.members.some(m=>m.id===id));
+    $('#mb').innerHTML=`<div class="lab">${g.members.length} ${T('üye')}</div>${g.members.map(m=>`<div class="li">${av(m.name,m.id)}<div class="nm">${esc(m.name)}${m.id===DB.me.id?' <small>(sen)</small>':''}</div></div>`).join('')}
+    ${cand.length?`<div class="sec2"><div class="lab">Gruba biri ekle</div><div style="display:flex;gap:8px"><select id="gsel">${cand.map(([id,n])=>`<option value="${id}">${esc(n)}</option>`).join('')}</select><button class="btn" id="gadd">Ekle</button></div></div>`:''}
+    <div class="sec2"><button class="btn red" id="gleave">Gruptan çık</button></div>`;
+    const a=$('#gadd');if(a)a.onclick=()=>{
+      const id=$('#gsel').value;g.members.push({id,name:DB.friends[id]});
+      g.members.forEach(m=>{if(m.id!==DB.me.id)enqueue(m.id,'raw',{payload:{t:id===m.id?'gnew':'gupd',group:g}})});
+      save();renderHead();renderList();draw();toast('Eklendi ✓');
+    };
+    $('#gleave').onclick=()=>{
+      if(!confirm(T('Gruptan çıkmak istiyor musun?')))return;
+      const rest=g.members.filter(m=>m.id!==DB.me.id),ng=Object.assign({},g,{members:rest});
+      rest.forEach(m=>enqueue(m.id,'raw',{payload:{t:'gupd',group:ng}}));
+      delete DB.groups[g.id];delete DB.msgs['g:'+g.id];cur=null;save();closeModal();renderAll();
+    };
+  };
+  openModal(c.name,'');draw();
+}
+
+function settingsModal(){
+  const b=openModal('Ayarlar',`
+   <div><div class="lab">Benim ID'm (arkadaşların seni bununla bulur)</div><div class="bigid">${esc(DB.me.id)}</div><button class="btn sec" id="cpid" style="margin-top:8px">ID'yi kopyala</button></div>
+   <div class="sec2"><div class="lab">İsmin (istediğin zaman değiştirebilirsin)</div><div style="display:flex;gap:8px"><input id="nm" maxlength="24" value="${esc(DB.me.name)}"><button class="btn" id="nmsave">Kaydet</button></div></div>
+   <div class="sec2"><div class="lab">Dil</div><button class="btn sec" id="langBtn"></button><div id="langBox" hidden></div></div>
+   <div class="sec2"><div class="lab">Görünüm</div><div class="tabs"><button data-th="light" class="${prefs.theme==='light'?'on':''}">☀️ Açık</button><button data-th="dark" class="${prefs.theme==='dark'?'on':''}">🌙 Koyu</button></div>
+   <label class="chk"><input type="checkbox" id="snd" ${prefs.sound?'checked':''}><span>Bildirim sesi</span></label></div>
+   <div class="sec2"><div class="lab">Yedek: Hesabın ve mesajların sadece bu telefonda durur. Telefon değiştirirsen veya tarayıcı verisi silinirse yedek dosyasıyla geri dönersin. Arada bir indir!</div><button class="btn sec" id="bk">⬇️ Yedek indir</button></div>
+   <div class="sec2"><button class="btn red" id="logout">Çıkış yap ve verileri sil</button></div>`);
+  const copy=(t,m)=>{(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast(m)).catch(()=>toast('Kopyalanamadı'))};
+  mountLangPicker($('#langBtn'),$('#langBox'));
+  $('#cpid').onclick=()=>copy(DB.me.id,'ID kopyalandı');
+  $('#nmsave').onclick=()=>{const n=$('#nm').value.trim().slice(0,24);if(!n)return toast('İsim boş olamaz');DB.me.name=n;save();Object.values(conns).forEach(c=>{if(c.open)try{sendRaw(c,{t:'hello',name:n})}catch(e){}});toast('İsim değişti ✓')};
+  b.querySelectorAll('[data-th]').forEach(t=>t.onclick=()=>{prefs.theme=t.dataset.th;savePrefs();b.querySelectorAll('[data-th]').forEach(x=>x.classList.toggle('on',x===t))});
+  $('#snd').onchange=e=>{prefs.sound=e.target.checked;savePrefs()};
+  $('#bk').onclick=()=>{const bl=new Blob([JSON.stringify(DB)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download='cem-chat-yedek-'+DB.me.id+'.json';document.body.appendChild(a);a.click();a.remove()};
+  $('#logout').onclick=()=>{if(!confirm(T('Tüm veriler bu telefondan silinecek. Yedek indirdin mi? Emin misin?')))return;try{peer&&peer.destroy()}catch(e){}store.set(null);localStorage.removeItem('cc_db');setTimeout(()=>location.reload(),300)};
+}
+$('#bSet').onclick=settingsModal;
+
+/* ---------- arama (WebRTC, PeerJS media) ---------- */
+let callState=null,ringState=null,ringT=null;
+async function getMedia(kind){try{return await navigator.mediaDevices.getUserMedia({audio:true,video:kind==='video'})}catch(e){toast('Mikrofon/kamera izni verilmedi');return null}}
+function showCallUI(){
+  const s=callState;$('#call').hidden=false;$('#ctitle').textContent=(s.kind==='video'?'🎥 ':'📞 ')+s.title;
+  $('#cCam').hidden=s.kind!=='video';$('#cMic').classList.remove('off');$('#cCam').classList.remove('off');
+  $('#tiles').innerHTML='';addTile('me',DB.me.name+' (sen)',s.local,true);
+}
+async function startCall(kind){
+  if(callState)return toast('Zaten bir aramadasın');
+  const c=chatById(cur);if(!c)return;
+  const members=c.group?c.g.members.map(m=>m.id).filter(i=>i!==DB.me.id):[c.peer];
+  const local=await getMedia(kind);if(!local)return;
+  callState={room:c.id,kind,local,title:c.name,conns:{},known:[DB.me.id,...members]};
+  showCallUI();members.forEach(connectCall);toast('Aranıyor… (karşı tarafın uygulaması açık olmalı)');
+}
+function connectCall(id){
+  const s=callState;if(!s||id===DB.me.id||s.conns[id]||!peer)return;
+  if(!s.known.includes(id))s.known.push(id);
+  const peers=[...new Set([...s.known,...Object.keys(s.conns)])];
+  let mc;try{mc=peer.call(pid(id),s.local,{metadata:{room:s.room,kind:s.kind,title:s.title,name:DB.me.name,peers}})}catch(e){return}
+  if(mc)wire(mc,id);
+}
+function wire(mc,id){
+  if(!callState)return;
+  callState.conns[id]=mc;
+  mc.on('stream',st=>{if(callState)addTile(id,nameOf(id),st,false)});
+  mc.on('close',()=>dropPeer(id,mc));
+  mc.on('error',()=>dropPeer(id,mc));
+}
+function addTile(id,name,stream,mine){
+  let t=document.getElementById('tile-'+id);
+  if(!t){t=document.createElement('div');t.className='tile';t.id='tile-'+id;t.innerHTML=`${av(name,id)}<video autoplay playsinline ${mine?'muted':''}></video><div class="lb">${esc(name)}</div>`;$('#tiles').appendChild(t)}
+  const v=t.querySelector('video');if(v.srcObject!==stream)v.srcObject=stream;
+  t.classList.toggle('novideo',!stream.getVideoTracks().length);
+  if(v.play)v.play().catch(()=>{});
+}
+function dropPeer(id,mc){
+  if(!callState)return;
+  if(mc&&callState.conns[id]&&callState.conns[id]!==mc)return;
+  const c=callState.conns[id];if(c){try{c.close()}catch(e){}delete callState.conns[id]}
+  const t=document.getElementById('tile-'+id);if(t)t.remove();
+}
+function endCall(){
+  if(!callState)return;const s=callState;callState=null;
+  Object.values(s.conns).forEach(c=>{try{c.close()}catch(e){}});
+  s.local.getTracks().forEach(t=>t.stop());
+  $('#call').hidden=true;$('#tiles').innerHTML='';
+}
+$('#cEnd').onclick=endCall;
+$('#cMic').onclick=e=>{if(!callState)return;const t=callState.local.getAudioTracks()[0];if(t){t.enabled=!t.enabled;e.currentTarget.classList.toggle('off',!t.enabled)}};
+$('#cCam').onclick=e=>{if(!callState)return;const t=callState.local.getVideoTracks()[0];if(t){t.enabled=!t.enabled;e.currentTarget.classList.toggle('off',!t.enabled)}};
+$('#cAdd').onclick=()=>{
+  if(!callState)return;
+  const inCall=new Set([DB.me.id,...Object.keys(callState.conns)]);
+  const cand=Object.entries(DB.friends).filter(([id])=>!inCall.has(id));
+  if(!cand.length)return toast('Eklenecek arkadaş yok');
+  const b=openModal('Aramaya biri ekle',cand.map(([id,n])=>`<div class="li">${av(n,id)}<div class="nm">${esc(n)}</div><button class="btn" data-inv="${id}">📞 Ara</button></div>`).join(''));
+  $('#modal').style.zIndex=95;
+  b.onclick=e=>{const x=e.target.closest('[data-inv]');if(!x||!callState)return;connectCall(x.dataset.inv);x.disabled=true;x.textContent=T('Arandı');toast('Arıyor…')};
+};
+function onCall(call){
+  const m=call.metadata||{},from=fid(call.peer);
+  if(m.name)peerNames[from]=String(m.name).slice(0,24);
+  if(callState&&callState.room===m.room){call.answer(callState.local);wire(call,from);return}
+  if(callState){try{call.close()}catch(e){}return}
+  if(ringState&&ringState.room===m.room){ringState.calls.push({call,from});return}
+  ringState={room:m.room,calls:[{call,from}],meta:m};
+  const r=$('#ring'),nm=nameOf(from),title=String(m.title||'').slice(0,24);
+  r.hidden=false;
+  r.innerHTML=`${av(nm,from)}<div class="nm"><b>${esc(nm)}</b><br><small>${T(m.kind==='video'?'🎥 Görüntülü arıyor':'📞 Sesli arıyor')}${title?' · '+esc(title):''}</small></div><button class="btn" id="rAcc">Aç</button><button class="btn red" id="rDec">Reddet</button>`;
+  const stop=(closeCalls)=>{clearInterval(ringT);ringT=null;clearTimeout(to);r.hidden=true;const rs=ringState;ringState=null;if(closeCalls&&rs)rs.calls.forEach(x=>{try{x.call.close()}catch(e){}})};
+  const to=setTimeout(()=>stop(true),45000);
+  clearInterval(ringT);beep(740,.25);ringT=setInterval(()=>beep(740,.25),1500);
+  $('#rDec').onclick=()=>stop(true);
+  $('#rAcc').onclick=async()=>{
+    const rs=ringState;stop(false);if(!rs)return;
+    const kind=rs.meta.kind==='video'?'video':'voice';
+    const local=await getMedia(kind);if(!local){rs.calls.forEach(x=>{try{x.call.close()}catch(e){}});return}
+    callState={room:rs.room,kind,local,title:title||nm,conns:{},known:[DB.me.id]};
+    showCallUI();
+    rs.calls.forEach(x=>{x.call.answer(local);wire(x.call,x.from)});
+    const others=(rs.meta.peers||[]).filter(p=>isId(p)&&p!==DB.me.id).slice(0,10);
+    others.forEach(p=>{if(!callState.known.includes(p))callState.known.push(p)});
+    others.filter(p=>!callState.conns[p]).forEach(p=>{
+      sendTo(p,{t:'cjoin',room:rs.room});
+      if(DB.me.id<p)connectCall(p);
+    });
+  };
+}
+
+/* ---------- açılış ---------- */
+async function enterApp(){
+  fixDB(DB);
+  $('#welcome').hidden=true;$('#app').hidden=false;
+  renderTop();renderList();renderMain();
+  startPeer();
+  if(pendingAdd){const id=pendingAdd;pendingAdd=null;if(isId(id)&&id!==DB.me.id)addModal(id)}
+  setInterval(()=>{ensurePeer();flushAll();renderHead()},12000);
+}
+$('#wGo').onclick=()=>{
+  const name=$('#wName').value.trim().slice(0,24);if(!name)return toast('Bir isim yaz');
+  DB=fixDB({me:{id:rid(8),name}});fresh=true;store.set(DB);enterApp();
+};
+$('#wName').onkeydown=e=>{if(e.key==='Enter')$('#wGo').click()};
+$('#wImp').onclick=()=>$('#wFile').click();
+$('#wFile').onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  try{const d=JSON.parse(await f.text());if(!d.me||!isId(d.me.id)||!d.me.name)throw 0;DB=fixDB(d);fresh=false;store.set(DB);enterApp()}
+  catch(x){toast('Bu geçerli bir yedek dosyası değil')}
+};
+['visibilitychange','online','pageshow','focus'].forEach(ev=>window.addEventListener(ev,()=>{
+  if(!DB||(ev==='visibilitychange'&&document.hidden))return;
+  ensurePeer();setTimeout(flushAll,1500);
+  if(cur&&!document.hidden){DB.read[cur]=Date.now();save();renderList()}
+}));
+(async function init(){
+  i18nStart();mountLangPicker($('#wLang'),$('#wLangBox'));
+  const m=/[?&]add=([a-z]{8})/.exec(location.search);
+  if(m){pendingAdd=m[1];history.replaceState(null,'',location.pathname)}
+  await store.init();
+  const d=await store.get();
+  if(d&&d.me&&isId(d.me.id)){DB=d;fresh=false;enterApp()}else showWelcome();
+})();
+</script>
+</body>
+</html>
